@@ -57,19 +57,23 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <a href="{{ route('home') }}" class="flex items-center space-x-3">
+                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
                         <i class="fas fa-calendar-check text-blue-600 text-2xl"></i>
                         <span class="font-bold text-xl text-gray-800">PresenceManager</span>
                     </a>
                 </div>
 
                 <div class="hidden md:flex lg:flex items-center space-x-4">
-                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-blue-600 transition duration-300 {{ request()->routeIs('home') ? 'text-blue-600 font-semibold' : '' }}">
+                    <a href="{{ route('dashboard') }}" class="hover:text-blue-600 transition duration-300 {{ request()->routeIs('dashboard') ? 'text-blue-600 font-semibold' : 'text-gray-700' }}">
                         <i class="fas fa-home mr-1"></i> Accueil
                     </a>
-                    <a href="{{ route('admin.evenements') }}" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md hover:shadow-lg">
+                    <a href="{{ route('admin.evenements') }}" class="hover:text-blue-600 transition duration-300 {{ request()->routeIs('admin.evenements') ? 'text-blue-600 font-semibold' : 'text-gray-700' }}">
                         <i class="fas fa-calendar-plus mr-2"></i>Evènements
                     </a>
+                    <form action="{{ route('auth.logout') }}" method="POST" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md hover:shadow-lg">
+                        @csrf
+                        <button type="submit"><i class="fas fa-sign-out-alt mr-2"></i>logout</button>
+                    </form>
                 </div>
             </div>
         </div>

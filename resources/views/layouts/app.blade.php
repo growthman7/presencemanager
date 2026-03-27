@@ -64,14 +64,14 @@
                 </div>
 
                 <div class="hidden md:flex lg:flex items-center space-x-4">
-                    <a href="{{ route('home') }}" class="text-gray-700 hover:text-blue-600 transition duration-300 {{ request()->routeIs('home') ? 'text-blue-600 font-semibold' : '' }}">
+                    <a href="{{ route('home') }}" class="hover:text-blue-600 transition duration-300 {{ request()->routeIs('home') ? 'text-blue-600 font-semibold' : 'text-gray-700' }}">
                         <i class="fas fa-home mr-1"></i> Accueil
                     </a>
-                    <a href="{{ route('liste.create') }}" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md hover:shadow-lg">
+                    <a href="{{ route('liste.create') }}" class="hover:text-blue-600 transition duration-300 {{ request()->routeIs('liste.create') ? 'text-blue-600 font-semibold' : 'text-gray-700' }}">
                         <i class="fas fa-plus mr-2"></i>Créer une liste
                     </a>
-                    <a href="{{ route('login') }}" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md hover:shadow-lg">
-                        <i class="fas fa-plus mr-2"></i>Se connecter
+                    <a href="{{ route('login') }}" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition duration-300 shadow-md hover:shadow-lg {{ request()->routeIs('login') ? 'hidden' : '' }}">
+                        <i class="fas fa-user mr-2"></i>Se connecter
                     </a>
                 </div>
             </div>

@@ -2,7 +2,10 @@
 @section('title', 'Gestion des événements - Tableau de bord')
 
 @section('content')
-<div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">
+        Listes des évènements
+    </h1>
     {{-- Liste de tous les évènements en carte --}}
     <div class="grid md:grid-cols-3 gap-6">
         @foreach($evenements as $evenement)
