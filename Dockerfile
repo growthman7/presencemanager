@@ -1,49 +1,26 @@
-# Étape 1 : Builder PHP avec Composer
-FROM php:8.2-fpm AS build
+FROM php:8.4-fpm
 
-# Installer dépendances système et extensions PHP nécessaires
 RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libonig-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    supervisor \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    git unzip libpq-dev libzip-dev zip curl vim \
+    nodejs npm libonig-dev \
+    libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd pdo_pgsql mbstring zip bcmath pcntl \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copier le projet
-WORKDIR /var/www
+WORKDIR /var/www/public
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
 COPY . .
 
-# Installer les dépendances Laravel
-RUN composer install --no-dev --optimize-autoloader
+RUN mkdir -p storage bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 storage bootstrap/cache
 
-# Nettoyer cache si besoin
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
-
-# Étape 2 : Image finale avec Nginx + PHP-FPM
-FROM nginx:stable-alpine
-
-# Copier les fichiers Laravel depuis le builder
-COPY --from=build /var/www /var/www
-
-# Copier la config Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Permissions
-RUN chown -R nginx:nginx /var/www/storage /var/www/bootstrap/cache \
-    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
-
-# Exposer le port
-EXPOSE 80
-
-# Lancer PHP-FPM et Nginx en arrière-plan
-CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+CMD php artisan serve --host=0.0.0.0 --port=10000
