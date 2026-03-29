@@ -1,7 +1,6 @@
 FROM php:8.4-apache
 
 ARG WWW_USER=1000
-COPY . /app
 WORKDIR /app
 
 # Install system dependencies
@@ -18,13 +17,23 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Apache config
 COPY vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite
 
-# Composer
+# Install Composer
 RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
 
-# User
+# Copy Laravel code
+COPY . /app
+
+# Install Laravel dependencies
+RUN composer install --no-dev --optimize-autoloader \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
+# Create user
 RUN groupadd --force -g $WWW_USER webapp \
     && useradd -ms /bin/bash --no-user-group -g $WWW_USER -u $WWW_USER webapp
 
