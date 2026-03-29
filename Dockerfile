@@ -1,6 +1,7 @@
 FROM php:8.4-apache
 
 ARG WWW_USER=1000
+COPY . /app
 WORKDIR /app
 
 # Install system dependencies
