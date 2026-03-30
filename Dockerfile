@@ -1,40 +1,26 @@
-FROM php:8.4-apache
+FROM php:8.3-fpm
 
-ARG WWW_USER=1000
-WORKDIR /app
-
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git curl \
-    libpng-dev libjpeg-dev libfreetype6-dev \
-    libonig-dev libxml2-dev libpq-dev libzip-dev \
-    libicu-dev libcurl4-openssl-dev \
-    zip unzip default-mysql-client \
+    git unzip libpq-dev libzip-dev zip curl vim \
+    nodejs npm libonig-dev \
+    libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-configure intl \
-    && docker-php-ext-install intl pdo pdo_mysql mbstring exif pcntl bcmath gd zip curl \
-    && apt-get -y autoremove \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && docker-php-ext-install gd pdo_pgsql mbstring zip bcmath pcntl \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Apache config
-COPY vhost.conf /etc/apache2/sites-available/000-default.conf
-RUN a2enmod rewrite
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Composer
-RUN php -r "readfile('http://getcomposer.org/installer');" | php -- --install-dir=/usr/bin/ --filename=composer
+WORKDIR /var/www/html
 
-# Copy Laravel code
-COPY . /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Install Laravel dependencies
-RUN composer install --no-dev --optimize-autoloader \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+COPY . .
 
-# Create user
-RUN groupadd --force -g $WWW_USER webapp \
-    && useradd -ms /bin/bash --no-user-group -g $WWW_USER -u $WWW_USER webapp
+RUN mkdir -p storage bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 storage bootstrap/cache
 
-USER ${WWW_USER}
+CMD php artisan serve --host=0.0.0.0 --port=${PORT}
