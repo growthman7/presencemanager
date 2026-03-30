@@ -1,6 +1,6 @@
-FROM php:8.3-fpm
+FROM php:8.4-fpm-alpine
 
-RUN apt-get update && apt-get install -y \
+RUN apk update && apk add --no-cache \
     git unzip libpq-dev libzip-dev zip curl vim \
     nodejs npm libonig-dev \
     libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
