@@ -8,7 +8,7 @@ RUN apk update && apk add --no-cache \
     && docker-php-ext-install gd pdo_pgsql mbstring zip bcmath pcntl \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apk del .build-deps
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
